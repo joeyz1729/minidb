@@ -37,8 +37,44 @@ func NewMergeDBFile(path string) (*DBFile, error) {
 	return newInternal(filename)
 }
 
-// Read from offset
+// Read db file from offset, return entry record
 func (df *DBFile) Read(offset int64) (e *Entry, err error) {
+	buf := make([]byte, entryHeaderSize)
+	if _, err = df.File.ReadAt(buf, offset); err != nil {
+		return
+	}
+	if e, err = Decode(buf); err != nil {
+		return
+	}
 
+	offset += entryHeaderSize
+	if e.KeySize > 0 {
+		key := make([]byte, e.KeySize)
+		if _, err = df.File.ReadAt(buf, offset); err != nil {
+			return
+		}
+		e.Key = key
+	}
+
+	offset += int64(e.KeySize)
+	if e.ValueSize > 0 {
+		value := make([]byte, e.ValueSize)
+		if _, err = df.File.ReadAt(buf, offset); err != nil {
+			return
+		}
+		e.Value = value
+	}
+
+	return
+}
+
+// Write entry
+func (df *DBFile) Write(e *Entry) (err error) {
+	enc, err := e.Encode()
+	if err != nil {
+		return err
+	}
+	_, err = df.File.WriteAt(enc, df.Offset)
+	df.Offset += e.GetSize()
 	return
 }

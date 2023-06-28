@@ -167,7 +167,7 @@ func (db *MiniDB) Get(key []byte) (value []byte, err error) {
 	offset, ok := db.indexes[string(key)]
 
 	if !ok {
-		err = fmt.Errorf("{key: %s doesn't exist.}", string(key))
+		err = fmt.Errorf("{key: %s doesn't exist.}", key)
 		return
 	}
 

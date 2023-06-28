@@ -50,7 +50,7 @@ func (df *DBFile) Read(offset int64) (e *Entry, err error) {
 	offset += entryHeaderSize
 	if e.KeySize > 0 {
 		key := make([]byte, e.KeySize)
-		if _, err = df.File.ReadAt(buf, offset); err != nil {
+		if _, err = df.File.ReadAt(key, offset); err != nil {
 			return
 		}
 		e.Key = key
@@ -59,7 +59,7 @@ func (df *DBFile) Read(offset int64) (e *Entry, err error) {
 	offset += int64(e.KeySize)
 	if e.ValueSize > 0 {
 		value := make([]byte, e.ValueSize)
-		if _, err = df.File.ReadAt(buf, offset); err != nil {
+		if _, err = df.File.ReadAt(value, offset); err != nil {
 			return
 		}
 		e.Value = value
